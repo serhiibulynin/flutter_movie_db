@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  spider: ^4.2.2
+  flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
   flutter_test:
@@ -20,3 +22,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - images/fast_x_sm_movie_img.jpeg
+    - images/fast_x_lg_movie_img.jpeg
+    - images/fast_x.jpeg
