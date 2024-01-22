@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:themovie_db/domain/entity/popular_movie_response.dart';
+
 class ApiClient {
   final _client = HttpClient();
   static const _host = 'https://api.themoviedb.org/3';
+  static const _imageUrl = 'https://image.tmdb.org/t/p/w500';
   static const _apiKey = 'a270cdf6cdb8b60438fe81cf5da8eacf';
+
+  static String imageUrl(String path) => _imageUrl + path;
 
   Future<String> auth({
     required String username,
@@ -27,6 +32,20 @@ class ApiClient {
     } else {
       return uri;
     }
+  }
+
+  Future<T> _get<T>(
+    String path,
+    T Function(dynamic json) parser, [
+    Map<String, dynamic>? parameters,
+  ]) async {
+    final url = _makeUri(path, parameters);
+
+    final request = await _client.getUrl(url);
+    final response = await request.close();
+    final dynamic json = await response.jsonDecode();
+    final result = parser(json);
+    return result;
   }
 
   Future<String> _makeToken() async {
@@ -87,6 +106,25 @@ class ApiClient {
 
     final sessionId = json["session_id"] as String;
     return sessionId;
+  }
+
+  Future<PopularMovieResponse> popularMovie(int page, String locale) async {
+    parser(dynamic json) {
+      final jsonMap = json as Map<String, dynamic>;
+      final response = PopularMovieResponse.fromJson(jsonMap);
+      return response;
+    }
+
+    final result = _get(
+      '/movie/popular',
+      parser,
+      <String, dynamic>{
+        'api_key': _apiKey,
+        'page': page.toString(),
+        'language': locale,
+      },
+    );
+    return result;
   }
 }
 
